@@ -1,36 +1,117 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# StudyGroup DAO - Stellar Journey to Mastery (Blue Belt)
 
-## Getting Started
+StudyGroup DAO is a decentralized MVP for study communities built on Stellar Testnet.  
+It combines governance polls, treasury crowdfunding/split accounting, and achievement certificates in a single dApp.
 
-First, run the development server:
+## Hackathon Submission Info
+
+- **Live Deploy Link:** [ ]
+- **Demo Video Link:** [ ]
+- **Feedback Form Link:** [ ]
+- **Repository Link:** [ ]
+
+## Problem Statement
+
+Study groups often rely on centralized tools for:
+- deciding what to study next,
+- collecting group funds for tools/courses,
+- recognizing member achievements.
+
+StudyGroup DAO moves these flows on-chain to improve transparency, shared ownership, and participation.
+
+## Solution Overview
+
+The app provides three on-chain modules:
+
+- **Governance (Live Poll):**
+  members vote on study topics using wallet-signed transactions.
+- **Treasury (Crowdfunding/Split):**
+  members donate to a shared pool and track group funding progress.
+- **Achievements (NFT Certificates):**
+  eligible members claim a certificate on-chain after milestones.
+
+## Architecture
+
+- **Frontend:** Next.js (App Router), React, Tailwind CSS
+- **Wallet Integration:** Freighter (`@stellar/freighter-api`)
+- **Blockchain Client:** Stellar SDK (`@stellar/stellar-sdk`)
+- **Smart Contracts:** Soroban (Rust)
+- **Network:** Stellar Testnet
+
+For architecture details, see `ARCHITECTURE.md`.
+
+## Contracts
+
+Soroban workspace location: `contracts/`
+
+- `governance`: poll creation and voting
+- `treasury`: contribution and allocation accounting
+- `achievements`: eligibility + certificate mint tracking
+
+Deploy scripts are included in:
+- `contracts/scripts/deploy-governance.sh`
+- `contracts/scripts/deploy-treasury.sh`
+- `contracts/scripts/deploy-achievements.sh`
+- `contracts/scripts/deploy-all.sh`
+
+## Frontend Modules
+
+- `/` - dashboard/home
+- `/governance` - active poll and vote action
+- `/treasury` - treasury balance, progress bar, and donate action
+- `/certificates` - claim certificate action
+
+## Wallets Used For Testing (5 users)
+
+1. [ ]
+2. [ ]
+3. [ ]
+4. [ ]
+5. [ ]
+
+## How to Run Locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create `.env.local` and set:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+NEXT_PUBLIC_STELLAR_RPC_URL=
+NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE=
+NEXT_PUBLIC_GOVERNANCE_CONTRACT_ID=
+NEXT_PUBLIC_TREASURY_CONTRACT_ID=
+NEXT_PUBLIC_NFT_CONTRACT_ID=
+NEXT_PUBLIC_ACTIVE_POLL_ID=
+```
 
-## Learn More
+## User Feedback
 
-To learn more about Next.js, take a look at the following resources:
+In-app persistent feedback prompt is included with:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`Help us improve! Please fill out our Feedback Form: [LINK_PLACEHOLDER]`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Replace placeholder with your final form link:
 
-## Deploy on Vercel
+- **Feedback Form Final Link:** [ ]
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Future Iteration Plan
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [ ] Add full on-chain read models for poll results and treasury state.
+- [ ] Add role-based permissions for DAO admin actions.
+- [ ] Add richer certificate metadata and gallery.
+- [ ] Improve onboarding UX and transaction status details.
+
+## Blue Belt Checklist
+
+- [x] Documented architecture
+- [x] Smart contracts + frontend integration
+- [x] Freighter wallet integration
+- [x] User feedback collection hook
+- [ ] Final deploy URL filled
+- [ ] Demo video link filled
+- [ ] Five real user wallet addresses filled

@@ -86,6 +86,19 @@ export function AppShell({ children }: AppShellProps) {
           {children}
         </main>
       </div>
+      <div className="fixed bottom-4 left-1/2 z-30 w-[calc(100%-2rem)] max-w-3xl -translate-x-1/2 rounded-lg border border-blue-500/40 bg-zinc-900/95 px-4 py-3 text-sm shadow-xl">
+        <p className="text-zinc-100">
+          Help us improve! Please fill out our Feedback Form:{" "}
+          <a
+            href="[LINK_PLACEHOLDER]"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-blue-300 underline underline-offset-2"
+          >
+            [LINK_PLACEHOLDER]
+          </a>
+        </p>
+      </div>
     </div>
   );
 }
