@@ -11,14 +11,66 @@ const DEFAULT_MODEL_POOL = [
   "gemini-1.5-flash",
 ];
 
+type BadgeTheme = {
+  archetype: string;
+  visualMotif: string;
+  palette: string;
+  iconography: string;
+};
+
+const VARIATION_TOKENS = [
+  "prismatic refractions",
+  "volumetric cosmic dust",
+  "holographic glyph trails",
+  "ionized particle ribbons",
+  "constellation lattice glow",
+  "aurora plasma arcs",
+];
+
+function chooseTheme(achievementTitle: string): BadgeTheme {
+  const normalized = achievementTitle.toLowerCase();
+
+  if (normalized.includes("governor") || normalized.includes("governance")) {
+    return {
+      archetype: "Stellar Governor",
+      visualMotif: "orbital senate emblem suspended above a voting dais",
+      palette: "royal sapphire, silver chrome, deep obsidian",
+      iconography: "voting sigils, consensus rings, civic laurels",
+    };
+  }
+
+  if (normalized.includes("treasury")) {
+    return {
+      archetype: "Treasury Hero",
+      visualMotif: "shielded vault core forged from radiant stellar alloy",
+      palette: "emerald teal, molten gold, carbon black",
+      iconography: "funding streams, protection crest, contribution seals",
+    };
+  }
+
+  return {
+    archetype: "Smart Contract Pioneer",
+    visualMotif: "ancient-meets-futuristic codex crystal with executable runes",
+    palette: "electric cyan, violet neon, titanium graphite",
+    iconography: "byte sigils, Soroban rune circles, logic constellations",
+  };
+}
+
+function randomPick(list: string[]) {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
 function localFallbackPrompt(achievementTitle: string, userAddress?: string) {
+  const theme = chooseTheme(achievementTitle);
+  const variation = randomPick(VARIATION_TOKENS);
   const shortAddress = userAddress
     ? `${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`
     : "anonymous scholar";
   return [
-    `A premium cyberpunk achievement badge for "${achievementTitle}" awarded to ${shortAddress}.`,
-    "The badge is a translucent crystal medallion floating in deep space, with Stellar network constellations, electric blue and violet light trails,",
-    "metallic chrome engravings, dramatic rim lighting, cinematic contrast, ultra-detailed textures, heroic composition, collectible NFT style.",
+    `A premium collectible badge titled "${theme.archetype}" for "${achievementTitle}", awarded to ${shortAddress}.`,
+    `Compose a unique hero emblem with ${theme.visualMotif}.`,
+    `Palette: ${theme.palette}. Iconography: ${theme.iconography}.`,
+    `Use cinematic composition, ultra-detailed materials, high contrast, and ${variation}.`,
   ].join(" ");
 }
 
@@ -44,15 +96,30 @@ export async function POST(req: Request) {
       );
     }
 
+    const theme = chooseTheme(achievementTitle);
+    const variationA = randomPick(VARIATION_TOKENS);
+    const variationB = randomPick(
+      VARIATION_TOKENS.filter((item) => item !== variationA),
+    );
+
     // Step 1: Use Gemini to generate a creative prompt for the badge
     const prompt = `
-      Create a highly detailed, artistic description for a digital badge/NFT achievement.
-      Achievement: "${achievementTitle}"
-      The user address is: ${userAddress}
-      
-      Style: Cyberpunk, high-fidelity, translucent glass, ethereal light, Stellar network theme.
-      Describe the visual elements, colors, and the "heroic" feel of this achievement.
-      Return ONLY the descriptive prompt in English, optimized for an image generation AI.
+      You are creating a UNIQUE AI badge prompt for a Stellar ecosystem achievement NFT.
+      Achievement title: "${achievementTitle}"
+      Recipient wallet: ${userAddress}
+      Badge archetype: "${theme.archetype}"
+      Visual motif: "${theme.visualMotif}"
+      Color palette: "${theme.palette}"
+      Iconography to include: "${theme.iconography}"
+
+      Hard requirements:
+      - Must be visually distinct from previous badges.
+      - Include these variation tokens naturally: "${variationA}" and "${variationB}".
+      - Compose a single centered badge/medallion with premium collectible look.
+      - Keep it English-only, 80-140 words, one paragraph.
+      - Do not output markdown, list items, or explanations.
+
+      Return ONLY the final image-generation prompt text.
     `;
 
     let aiPrompt = "";
