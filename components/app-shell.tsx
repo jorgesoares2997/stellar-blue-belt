@@ -33,10 +33,10 @@ export function AppShell({ children }: AppShellProps) {
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
           <Link href="/" className="hoverable flex items-center gap-3">
             <div className="relative h-10 w-10 overflow-hidden rounded-xl border border-white/10 shadow-lg">
-              <Image 
-                src="/logo.png" 
-                alt="Logo" 
-                fill 
+              <Image
+                src="/favicon.png"
+                alt="Logo"
+                fill
                 className="object-cover"
               />
             </div>
@@ -93,7 +93,7 @@ export function AppShell({ children }: AppShellProps) {
               ))}
             </nav>
           </div>
-          
+
           <div className="rounded-2xl border border-white glass-card p-6">
             <p className="mb-2 text-xs font-bold uppercase tracking-widest text-zinc-500">
               Network Status
@@ -106,7 +106,7 @@ export function AppShell({ children }: AppShellProps) {
             {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
           </div>
         </aside>
-        
+
         <main className="rounded-3xl border border-white glass-card p-10 min-h-[600px]">
           {children}
         </main>
@@ -117,7 +117,7 @@ export function AppShell({ children }: AppShellProps) {
           <p className="text-center text-sm text-zinc-400">
             Help us improve! Please fill out our{" "}
             <a
-              href="[LINK_PLACEHOLDER]"
+              href="https://forms.gle/x5ZLrqT6AEmYZsjh7"
               target="_blank"
               rel="noopener noreferrer"
               className="hoverable font-bold text-blue-400 underline underline-offset-4"

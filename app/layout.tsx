@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   title: "StudyGroup DAO",
   description: "Governance, treasury and achievements on Stellar Testnet.",
   icons: {
-    icon: "/favicon.png",
+    icon: "/logo.png",
   },
 };
 
