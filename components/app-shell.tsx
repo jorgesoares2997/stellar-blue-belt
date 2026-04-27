@@ -37,6 +37,7 @@ export function AppShell({ children }: AppShellProps) {
                 src="/favicon.png"
                 alt="Logo"
                 fill
+                sizes="40px"
                 className="object-cover"
               />
             </div>

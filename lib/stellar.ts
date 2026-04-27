@@ -10,7 +10,10 @@ import {
   rpc,
   xdr,
 } from "@stellar/stellar-sdk";
-import { getAddress, signTransaction } from "@stellar/freighter-api";
+import {
+  ensureWalletKitInitialized,
+  walletKitNetworkPassphrase,
+} from "@/lib/wallet-kit";
 
 type ContractCallParams = {
   contractId: string;
@@ -33,7 +36,7 @@ const server = new rpc.Server(RPC_URL, {
 });
 
 function getNetworkPassphrase() {
-  return process.env.NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE ?? TESTNET_PASSPHRASE;
+  return walletKitNetworkPassphrase() ?? TESTNET_PASSPHRASE;
 }
 
 export async function invokeContract({
@@ -47,6 +50,7 @@ export async function invokeContract({
     );
   }
 
+  const StellarWalletsKit = await ensureWalletKitInitialized();
   const walletAddress = await getConnectedAddress();
 
   const sourceAccount = await server.getAccount(walletAddress);
@@ -62,13 +66,13 @@ export async function invokeContract({
     .build();
 
   const preparedTx = await server.prepareTransaction(tx);
-  const signed = await signTransaction(preparedTx.toXDR(), {
+  const signed = await StellarWalletsKit.signTransaction(preparedTx.toXDR(), {
     address: walletAddress,
     networkPassphrase,
   });
 
-  if (signed.error || !signed.signedTxXdr) {
-    throw new Error(signed.error ?? "Freighter could not sign the transaction.");
+  if (!signed.signedTxXdr) {
+    throw new Error("Wallet could not sign the transaction.");
   }
 
   const signedTx = TransactionBuilder.fromXDR(signed.signedTxXdr, networkPassphrase);
@@ -89,11 +93,10 @@ export async function invokeContract({
 }
 
 export async function getConnectedAddress() {
-  const addressResult = await getAddress();
-  if (addressResult.error || !addressResult.address) {
-    throw new Error(
-      addressResult.error ?? "Could not resolve Freighter wallet address.",
-    );
+  const StellarWalletsKit = await ensureWalletKitInitialized();
+  const addressResult = await StellarWalletsKit.getAddress();
+  if (!addressResult.address) {
+    throw new Error("Could not resolve wallet address.");
   }
   return addressResult.address;
 }

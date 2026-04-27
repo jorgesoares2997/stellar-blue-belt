@@ -52,12 +52,6 @@ Soroban workspace location: `contracts/`
 - `treasury`: contribution and allocation accounting
 - `achievements`: eligibility + certificate mint tracking
 
-Deploy scripts are included in:
-- `contracts/scripts/deploy-governance.sh`
-- `contracts/scripts/deploy-treasury.sh`
-- `contracts/scripts/deploy-achievements.sh`
-- `contracts/scripts/deploy-all.sh`
-
 ## Build and Deploy Contracts (Full Guide)
 
 ### 1) Prerequisites
@@ -96,12 +90,10 @@ stellar keys address admin
 Fund this address on Stellar Testnet (Friendbot), then set env vars:
 
 ```bash
-export SOROBAN_SOURCE=admin
+export STELLAR_SOURCE=admin
 export ADMIN_ADDRESS=<YOUR_G_PUBLIC_KEY>
-export SOROBAN_NETWORK=testnet
+export STELLAR_NETWORK=testnet
 ```
-
-Note: the deploy scripts still use `SOROBAN_SOURCE` and `SOROBAN_NETWORK` variable names for compatibility.
 
 ### 3) Build all contracts
 
@@ -118,30 +110,70 @@ This generates:
 - `target/wasm32v1-none/release/treasury.wasm`
 - `target/wasm32v1-none/release/achievements.wasm`
 
-### 4) Deploy contracts (option A: all at once)
+### 4) Deploy governance contract (manual)
 
 ```bash
 cd contracts
-./scripts/deploy-all.sh
+GOVERNANCE_CONTRACT_ID=$(
+  stellar contract deploy \
+    --network "$STELLAR_NETWORK" \
+    --source "$STELLAR_SOURCE" \
+    --wasm target/wasm32v1-none/release/governance.wasm
+)
+
+stellar contract invoke \
+  --network "$STELLAR_NETWORK" \
+  --source "$STELLAR_SOURCE" \
+  --id "$GOVERNANCE_CONTRACT_ID" \
+  -- init \
+  --admin "$ADMIN_ADDRESS"
+
+echo "Governance: $GOVERNANCE_CONTRACT_ID"
 ```
 
-### 5) Deploy contracts (option B: one by one)
+### 5) Deploy treasury contract (manual)
 
 ```bash
 cd contracts
-./scripts/deploy-governance.sh
-./scripts/deploy-treasury.sh
-./scripts/deploy-achievements.sh
+TREASURY_CONTRACT_ID=$(
+  stellar contract deploy \
+    --network "$STELLAR_NETWORK" \
+    --source "$STELLAR_SOURCE" \
+    --wasm target/wasm32v1-none/release/treasury.wasm
+)
+
+stellar contract invoke \
+  --network "$STELLAR_NETWORK" \
+  --source "$STELLAR_SOURCE" \
+  --id "$TREASURY_CONTRACT_ID" \
+  -- init \
+  --admin "$ADMIN_ADDRESS"
+
+echo "Treasury: $TREASURY_CONTRACT_ID"
 ```
 
-Each script:
+### 6) Deploy achievements contract (manual)
 
-1. Builds the contract WASM
-2. Deploys to Testnet
-3. Calls `init --admin <ADMIN_ADDRESS>`
-4. Prints the deployed contract ID
+```bash
+cd contracts
+ACHIEVEMENTS_CONTRACT_ID=$(
+  stellar contract deploy \
+    --network "$STELLAR_NETWORK" \
+    --source "$STELLAR_SOURCE" \
+    --wasm target/wasm32v1-none/release/achievements.wasm
+)
 
-### 6) Save deployed contract IDs in frontend env
+stellar contract invoke \
+  --network "$STELLAR_NETWORK" \
+  --source "$STELLAR_SOURCE" \
+  --id "$ACHIEVEMENTS_CONTRACT_ID" \
+  -- init \
+  --admin "$ADMIN_ADDRESS"
+
+echo "Achievements: $ACHIEVEMENTS_CONTRACT_ID"
+```
+
+### 7) Save deployed contract IDs in frontend env
 
 Create/update `.env.local` in project root:
 
@@ -154,14 +186,14 @@ NEXT_PUBLIC_NFT_CONTRACT_ID=<ACHIEVEMENTS_CONTRACT_ID>
 NEXT_PUBLIC_ACTIVE_POLL_ID=1
 ```
 
-### 7) Initialize governance poll data (required for voting page)
+### 8) Initialize governance poll data (required for voting page)
 
 After deployment, create the first poll so `/governance` can vote on poll `1`:
 
 ```bash
 stellar contract invoke \
-  --network testnet \
-  --source admin \
+  --network "$STELLAR_NETWORK" \
+  --source "$STELLAR_SOURCE" \
   --id <GOVERNANCE_CONTRACT_ID> \
   -- create_poll \
   --admin <ADMIN_ADDRESS> \
@@ -174,20 +206,20 @@ If needed, check current poll count:
 
 ```bash
 stellar contract invoke \
-  --network testnet \
-  --source admin \
+  --network "$STELLAR_NETWORK" \
+  --source "$STELLAR_SOURCE" \
   --id <GOVERNANCE_CONTRACT_ID> \
   -- poll_count
 ```
 
-### 8) Prepare certificate eligibility (required for claiming)
+### 9) Prepare certificate eligibility (required for claiming)
 
 Users must be marked eligible in `achievements` before claiming:
 
 ```bash
 stellar contract invoke \
-  --network testnet \
-  --source admin \
+  --network "$STELLAR_NETWORK" \
+  --source "$STELLAR_SOURCE" \
   --id <ACHIEVEMENTS_CONTRACT_ID> \
   -- set_eligible \
   --admin <ADMIN_ADDRESS> \
@@ -195,7 +227,7 @@ stellar contract invoke \
   --eligible true
 ```
 
-### 9) Run frontend
+### 10) Run frontend
 
 ```bash
 npm install

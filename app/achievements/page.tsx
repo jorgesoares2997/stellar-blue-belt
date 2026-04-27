@@ -18,12 +18,26 @@ const MISSIONS = [
   { id: "m3", title: "Treasury Hero", description: "Contributed over 100 XLM to the group funds." },
 ];
 
+type CreatedBadge = {
+  id: string;
+  missionTitle: string;
+  imageUrl: string;
+  prompt: string;
+  createdAt: string;
+  minted: boolean;
+  minting?: boolean;
+  metadataUri?: string;
+};
+
+const isoNow = () => new Date().toISOString();
+
 export default function AchievementsPage() {
   const { connected, address } = useStellarWallet();
   const [loading, setLoading] = useState<string | null>(null);
-  const [minting, setMinting] = useState(false);
+  const [status, setStatus] = useState<string>("");
   const [success, setSuccess] = useState(false);
   const [generatedBadge, setGeneratedBadge] = useState<{ id: string; url: string; prompt: string } | null>(null);
+  const [createdBadges, setCreatedBadges] = useState<CreatedBadge[]>([]);
 
   const generateBadge = async (missionId: string, missionTitle: string) => {
     if (!connected) return;
@@ -38,25 +52,51 @@ export default function AchievementsPage() {
         body: JSON.stringify({ achievementTitle: missionTitle, userAddress: address }),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error ?? "Could not generate badge.");
+      }
+
       const data = await response.json();
       if (data.success) {
-        setGeneratedBadge({ id: missionId, url: data.imageUrl, prompt: data.achievementPrompt });
+        const badgeId = data.badgeId ?? missionId;
+        const created: CreatedBadge = {
+          id: badgeId,
+          missionTitle,
+          imageUrl: data.imageUrl,
+          prompt: data.achievementPrompt,
+          createdAt: isoNow(),
+          minted: false,
+          metadataUri: `ipfs://ai-generated-badge/${badgeId}.json`,
+        };
+        setGeneratedBadge({ id: created.id, url: created.imageUrl, prompt: created.prompt });
+        setCreatedBadges((prev) => [created, ...prev]);
+        setStatus("Badge generated successfully.");
       }
     } catch (error) {
       console.error("Error generating badge:", error);
+      setStatus(error instanceof Error ? error.message : "Error generating badge.");
     } finally {
       setLoading(null);
     }
   };
 
-  const mintAsNFT = async () => {
-    if (!generatedBadge || !connected) return;
-    
-    setMinting(true);
+  const mintBadge = async (badgeId: string) => {
+    if (!connected) return;
+
+    const targetBadge = createdBadges.find((badge) => badge.id === badgeId);
+    if (!targetBadge || targetBadge.minted) return;
+
+    setCreatedBadges((prev) =>
+      prev.map((badge) =>
+        badge.id === badgeId ? { ...badge, minting: true } : badge
+      )
+    );
+
     try {
       const userAddress = await getConnectedAddress();
-      // Simulating metadata URI for the AI-generated art
-      const metadataUri = `ipfs://ai-generated-badge/${generatedBadge.id}.json`;
+      const metadataUri =
+        targetBadge.metadataUri ?? `ipfs://ai-generated-badge/${badgeId}.json`;
       
       await invokeContract({
         contractId: NFT_CONTRACT_ID,
@@ -65,6 +105,12 @@ export default function AchievementsPage() {
       });
 
       setSuccess(true);
+      setStatus("Badge minted on Stellar successfully.");
+      setCreatedBadges((prev) =>
+        prev.map((badge) =>
+          badge.id === badgeId ? { ...badge, minted: true, minting: false } : badge
+        )
+      );
       confetti({
         particleCount: 150,
         spread: 70,
@@ -72,16 +118,18 @@ export default function AchievementsPage() {
         colors: ["#3b82f6", "#10b981", "#8b5cf6"]
       });
 
-      setTimeout(() => {
-        setGeneratedBadge(null);
-        setSuccess(false);
-      }, 5000);
-      
     } catch (error) {
       console.error("Minting failed:", error);
-      alert(error instanceof Error ? error.message : "Minting failed");
+      setStatus(error instanceof Error ? error.message : "Minting failed");
+      setCreatedBadges((prev) =>
+        prev.map((badge) =>
+          badge.id === badgeId ? { ...badge, minting: false } : badge
+        )
+      );
     } finally {
-      setMinting(false);
+      setTimeout(() => {
+        setSuccess(false);
+      }, 1500);
     }
   };
 
@@ -149,6 +197,60 @@ export default function AchievementsPage() {
         ))}
       </div>
 
+      <section className="space-y-4">
+        <h2 className="text-xl font-bold text-zinc-900 dark:text-white">
+          Created Badges
+        </h2>
+        {createdBadges.length === 0 ? (
+          <div className="rounded-2xl border border-black/5 bg-black/[0.01] px-6 py-6 text-sm text-zinc-500 dark:border-white/10 dark:bg-white/[0.02] dark:text-zinc-400">
+            No badges generated yet. Create one from a mission above.
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {createdBadges.map((badge) => (
+              <div
+                key={badge.id}
+                className="glass-card rounded-2xl p-4"
+              >
+                <div className="relative mb-3 aspect-square w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-900">
+                  <Image
+                    src={badge.imageUrl}
+                    alt={badge.missionTitle}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                    className="object-cover"
+                  />
+                </div>
+                <p className="text-sm font-semibold text-zinc-900 dark:text-white">
+                  {badge.missionTitle}
+                </p>
+                <p className="mt-1 line-clamp-2 text-xs text-zinc-500 dark:text-zinc-400">
+                  {badge.prompt}
+                </p>
+                <button
+                  type="button"
+                  disabled={!connected || badge.minted || badge.minting}
+                  onClick={() => mintBadge(badge.id)}
+                  className="mt-3 w-full rounded-xl bg-zinc-900 px-4 py-2 text-sm font-bold text-white transition-all hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+                >
+                  {badge.minted
+                    ? "Minted"
+                    : badge.minting
+                      ? "Minting..."
+                      : "Mint as NFT"}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {status && (
+        <div className="rounded-xl border border-black/5 bg-black/[0.01] px-6 py-4 text-sm text-zinc-600 dark:border-white/10 dark:bg-white/[0.02] dark:text-zinc-300">
+          {status}
+        </div>
+      )}
+
       <AnimatePresence>
         {generatedBadge && (
           <motion.div
@@ -188,11 +290,18 @@ export default function AchievementsPage() {
                 <div className="mt-8 flex gap-4">
                   {!success && (
                     <button 
-                      disabled={minting}
+                      disabled={
+                        !generatedBadge ||
+                        !createdBadges.some((badge) => badge.id === generatedBadge.id) ||
+                        createdBadges.find((badge) => badge.id === generatedBadge.id)?.minted ||
+                        createdBadges.find((badge) => badge.id === generatedBadge.id)?.minting
+                      }
                       className="hoverable flex-1 rounded-xl bg-zinc-900 dark:bg-white px-6 py-3 text-sm font-bold text-white dark:text-black transition-all hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-50"
-                      onClick={mintAsNFT}
+                      onClick={() => generatedBadge && mintBadge(generatedBadge.id)}
                     >
-                      {minting ? "Minting on Stellar..." : "Mint as NFT"}
+                      {createdBadges.find((badge) => badge.id === generatedBadge.id)?.minting
+                        ? "Minting on Stellar..."
+                        : "Mint as NFT"}
                     </button>
                   )}
                   <button 

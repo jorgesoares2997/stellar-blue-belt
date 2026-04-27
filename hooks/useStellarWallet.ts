@@ -1,15 +1,10 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
-import {
-  getAddress,
-  getNetwork,
-  isAllowed,
-  isConnected,
-  setAllowed,
-} from "@stellar/freighter-api";
+import { useSyncExternalStore } from "react";
+import { ensureWalletKitInitialized } from "@/lib/wallet-kit";
 
 type WalletState = {
+  walletName: string | null;
   address: string | null;
   network: string | null;
   connected: boolean;
@@ -18,6 +13,7 @@ type WalletState = {
 };
 
 const initialState: WalletState = {
+  walletName: null,
   address: null,
   network: null,
   connected: false,
@@ -25,69 +21,95 @@ const initialState: WalletState = {
   error: null,
 };
 
-export function useStellarWallet() {
-  const [state, setState] = useState<WalletState>(initialState);
+let state: WalletState = initialState;
+const listeners = new Set<() => void>();
 
-  const connect = useCallback(async () => {
+function setState(updater: WalletState | ((prev: WalletState) => WalletState)) {
+  state = typeof updater === "function" ? updater(state) : updater;
+  listeners.forEach((listener) => listener());
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+function getSnapshot() {
+  return state;
+}
+
+async function refreshFromWallet() {
+  const StellarWalletsKit = await ensureWalletKitInitialized();
+  const { address } = await StellarWalletsKit.getAddress();
+
+  let networkPassphrase: string | null = null;
+  try {
+    const networkResult = await StellarWalletsKit.getNetwork();
+    networkPassphrase = networkResult.networkPassphrase ?? null;
+  } catch {
+    // Some wallets may not return network details consistently.
+  }
+
+  setState((prev) => ({
+    ...prev,
+    walletName: StellarWalletsKit.selectedModule?.productName ?? prev.walletName,
+    address,
+    network:
+      networkPassphrase ??
+      process.env.NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE ??
+      null,
+    connected: true,
+    loading: false,
+    error: null,
+  }));
+}
+
+export function useStellarWallet() {
+  const wallet = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+
+  const connect = async () => {
+    const StellarWalletsKit = await ensureWalletKitInitialized();
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
-      const allowedResult = await isAllowed();
-      if (allowedResult.error) {
-        throw new Error(allowedResult.error);
-      }
-      if (!allowedResult.isAllowed) {
-        const permission = await setAllowed();
-        if (permission.error) {
-          throw new Error(permission.error);
-        }
-      }
-
-      const connectedResult = await isConnected();
-      if (connectedResult.error) {
-        throw new Error(connectedResult.error);
-      }
-      if (!connectedResult.isConnected) {
-        throw new Error("Freighter is not connected to this site.");
-      }
-
-      const addressResult = await getAddress();
-      if (addressResult.error || !addressResult.address) {
-        throw new Error(addressResult.error ?? "Could not get wallet address.");
-      }
-
-      const networkResult = await getNetwork();
-      if (networkResult.error) {
-        throw new Error(networkResult.error);
-      }
-
-      setState({
-        address: addressResult.address,
-        network: networkResult.network ?? null,
-        connected: true,
+      const authResult = await StellarWalletsKit.authModal();
+      setState((prev) => ({
+        ...prev,
+        walletName: StellarWalletsKit.selectedModule?.productName ?? null,
+        address: authResult.address ?? null,
+        connected: Boolean(authResult.address),
         loading: false,
         error: null,
-      });
+      }));
+      await refreshFromWallet();
     } catch (error) {
       setState((prev) => ({
         ...prev,
         loading: false,
         connected: false,
-        error: error instanceof Error ? error.message : "Wallet connection failed.",
+        error:
+          error instanceof Error
+            ? error.message
+            : "Wallet connection failed.",
       }));
     }
-  }, []);
+  };
 
-  const disconnect = useCallback(() => {
+  const disconnect = async () => {
+    const StellarWalletsKit = await ensureWalletKitInitialized();
+    try {
+      await StellarWalletsKit.disconnect();
+    } catch {
+      // Some wallet modules do not implement disconnect.
+    }
     setState(initialState);
-  }, []);
+  };
 
-  const shortAddress = useMemo(() => {
-    if (!state.address) return null;
-    return `${state.address.slice(0, 6)}...${state.address.slice(-4)}`;
-  }, [state.address]);
+  const shortAddress = wallet.address
+    ? `${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}`
+    : null;
 
   return {
-    ...state,
+    ...wallet,
     shortAddress,
     connect,
     disconnect,
