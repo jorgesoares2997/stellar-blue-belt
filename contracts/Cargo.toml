@@ -1,0 +1,11 @@
+[workspace]
+resolver = "2"
+members = ["governance", "treasury", "achievements"]
+
+[workspace.package]
+edition = "2021"
+license = "MIT"
+publish = false
+
+[workspace.dependencies]
+soroban-sdk = "22.0.0"
