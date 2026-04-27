@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import {
   TREASURY_CONTRACT_ID,
   getConnectedAddress,
@@ -55,63 +56,127 @@ export default function TreasuryPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <p className="text-xs uppercase tracking-widest text-blue-300">
-          Treasury Module
-        </p>
-        <h1 className="mt-2 text-2xl font-semibold">Group treasury overview</h1>
-        <p className="mt-2 text-sm text-zinc-300">
-          Track testnet funding for study tools and donate directly from your
-          connected wallet.
-        </p>
-      </div>
-
-      <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
-        <p className="text-sm text-zinc-300">Current treasury balance (UI):</p>
-        <p className="mt-1 text-3xl font-semibold">{raised.toFixed(2)} XLM</p>
-      </div>
-
-      <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
-        <div className="mb-2 flex items-center justify-between text-sm">
-          <span className="text-zinc-300">Crowdfunding progress</span>
-          <span className="font-medium">
-            {raised}/{FUNDING_TARGET} XLM
-          </span>
-        </div>
-        <div className="h-2 w-full rounded-full bg-zinc-800">
-          <div
-            className="h-2 rounded-full bg-blue-500"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-3 rounded-lg border border-zinc-800 bg-zinc-900 p-4 md:flex-row md:items-end">
-        <label className="flex-1 text-sm">
-          <span className="mb-1 block text-zinc-300">Donate XLM (Testnet)</span>
-          <input
-            type="number"
-            min="1"
-            step="1"
-            value={donation}
-            onChange={(e) => setDonation(e.target.value)}
-            className="w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 outline-none focus:border-blue-500"
-          />
-        </label>
-        <button
-          type="button"
-          onClick={donate}
-          disabled={loading}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-60"
+    <div className="space-y-10">
+      <header>
+        <motion.p 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="text-xs uppercase tracking-widest text-blue-400 font-medium"
         >
-          {loading ? "Submitting..." : "Donate XLM (Testnet)"}
-        </button>
+          Treasury Module
+        </motion.p>
+        <motion.h1 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mt-2 text-3xl font-bold tracking-tight text-white md:text-4xl"
+        >
+          Group treasury overview
+        </motion.h1>
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="mt-4 text-zinc-400 max-w-2xl"
+        >
+          Manage shared funds for tools, courses and study material. 
+          Every contribution is verifiable on the Stellar ledger.
+        </motion.p>
+      </header>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3 }}
+          className="glass-card flex flex-col justify-center rounded-2xl p-8"
+        >
+          <p className="text-sm font-medium text-zinc-400">Current Balance</p>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-5xl font-bold text-white">{raised.toFixed(0)}</span>
+            <span className="text-xl font-semibold text-blue-400">XLM</span>
+          </div>
+          <p className="mt-4 text-xs text-zinc-500 uppercase tracking-widest">
+            Stellar Testnet Assets
+          </p>
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.4 }}
+          className="glass-card flex flex-col justify-center rounded-2xl p-8"
+        >
+          <div className="mb-4 flex items-center justify-between">
+            <span className="text-sm font-medium text-zinc-400">Target Progress</span>
+            <span className="text-sm font-bold text-white">
+              {progress}%
+            </span>
+          </div>
+          <div className="relative h-4 w-full overflow-hidden rounded-full bg-white/5">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 1.5, ease: "easeOut", delay: 0.6 }}
+              className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-600 to-purple-500 shadow-[0_0_20px_rgba(59,130,246,0.5)]"
+            />
+          </div>
+          <p className="mt-4 text-xs text-zinc-500">
+            {raised} of {FUNDING_TARGET} XLM reached
+          </p>
+        </motion.div>
       </div>
 
-      <div className="rounded-md border border-zinc-800 bg-zinc-900/70 px-4 py-3 text-sm text-zinc-200">
-        {status}
-      </div>
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="glass-card rounded-2xl p-8"
+      >
+        <h3 className="mb-6 text-lg font-semibold text-white">Contribute to the DAO</h3>
+        <div className="flex flex-col gap-4 md:flex-row md:items-end">
+          <div className="flex-1">
+            <label className="mb-2 block text-sm font-medium text-zinc-400">
+              Amount (XLM)
+            </label>
+            <input
+              type="number"
+              min="1"
+              step="1"
+              value={donation}
+              onChange={(e) => setDonation(e.target.value)}
+              className="hoverable w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none focus:border-blue-500/50 focus:bg-white/[0.08] transition-all"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={donate}
+            disabled={loading}
+            className="hoverable flex h-[50px] items-center justify-center rounded-xl bg-blue-600 px-8 text-sm font-bold text-white transition-all hover:bg-blue-500 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-95 disabled:opacity-50"
+          >
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+                Processing...
+              </span>
+            ) : (
+              "Contribute Now"
+            )}
+          </button>
+        </div>
+      </motion.div>
+
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.7 }}
+        className="rounded-xl border border-white/5 bg-white/[0.02] px-6 py-4 backdrop-blur-sm"
+      >
+        <div className="flex items-center gap-3 text-sm text-zinc-300">
+          <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+          {status}
+        </div>
+      </motion.div>
     </div>
   );
 }
