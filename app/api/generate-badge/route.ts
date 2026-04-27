@@ -91,13 +91,15 @@ export async function POST(req: Request) {
     // Keep a short delay for UX without slowing retries.
     await new Promise((resolve) => setTimeout(resolve, 500));
 
+    const imageKey = `badge_${Math.floor(Math.random() * 3) + 1}.png`;
     return NextResponse.json({
       success: true,
       badgeId,
       modelUsed: usedModel,
+      imageKey,
       achievementPrompt: aiPrompt,
-      // We'll use a dynamic-looking path. In the frontend, we'll show the "result".
-      imageUrl: `/assets/badges/badge_${Math.floor(Math.random() * 3) + 1}.png`
+      // Convenience for immediate display.
+      imageUrl: `/assets/badges/${imageKey}`,
     });
   } catch (error) {
     console.error("Gemini Error:", error);
