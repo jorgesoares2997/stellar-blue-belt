@@ -306,6 +306,21 @@ NEXT_PUBLIC_TREASURY_CONTRACT_ID=
 NEXT_PUBLIC_NFT_CONTRACT_ID=
 NEXT_PUBLIC_ACTIVE_POLL_ID=
 GEMINI_API_KEY=
+GEMINI_MODEL_POOL=
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+```
+
+### Supabase setup (CLI)
+
+The project includes Supabase migration files in `supabase/migrations`.
+
+Run:
+
+```bash
+npx supabase login
+npx supabase link --project-ref <YOUR_PROJECT_REF>
+npx supabase db push
 ```
 
 ## User Feedback

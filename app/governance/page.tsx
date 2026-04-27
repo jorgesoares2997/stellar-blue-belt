@@ -33,9 +33,15 @@ export default function GovernancePage() {
       });
       setStatus("Vote submitted successfully on Stellar Testnet.");
     } catch (error) {
-      setStatus(
-        error instanceof Error ? `Vote failed: ${error.message}` : "Vote failed.",
-      );
+      const rawMessage = error instanceof Error ? error.message : "Vote failed.";
+      const normalized = rawMessage.toLowerCase();
+      if (normalized.includes("hosterror") || normalized.includes("vote")) {
+        setStatus(
+          `Vote failed on-chain for poll ${POLL_ID}. Common reasons: this wallet already voted in this poll, poll is closed, or NEXT_PUBLIC_ACTIVE_POLL_ID points to an old poll.`,
+        );
+      } else {
+        setStatus(`Vote failed: ${rawMessage}`);
+      }
     } finally {
       setLoadingOption(null);
     }

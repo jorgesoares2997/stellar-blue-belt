@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useStellarWallet } from "@/hooks/useStellarWallet";
@@ -21,6 +21,7 @@ const MISSIONS = [
 type CreatedBadge = {
   id: string;
   missionTitle: string;
+  imageKey: string;
   imageUrl: string;
   prompt: string;
   createdAt: string;
@@ -29,7 +30,31 @@ type CreatedBadge = {
   metadataUri?: string;
 };
 
-const isoNow = () => new Date().toISOString();
+type BadgeRow = {
+  id: string;
+  mission_title: string;
+  image_url: string;
+  prompt: string;
+  created_at: string;
+  minted: boolean;
+  metadata_uri: string;
+};
+
+function mapBadgeRow(row: BadgeRow): CreatedBadge {
+  const imageKey = row.image_url.startsWith("/")
+    ? row.image_url.split("/").pop() || "badge_1.png"
+    : row.image_url;
+  return {
+    id: row.id,
+    missionTitle: row.mission_title,
+    imageKey,
+    imageUrl: `/assets/badges/${imageKey}`,
+    prompt: row.prompt,
+    createdAt: row.created_at,
+    minted: row.minted,
+    metadataUri: row.metadata_uri,
+  };
+}
 
 export default function AchievementsPage() {
   const { connected, address } = useStellarWallet();
@@ -39,8 +64,36 @@ export default function AchievementsPage() {
   const [generatedBadge, setGeneratedBadge] = useState<{ id: string; url: string; prompt: string } | null>(null);
   const [createdBadges, setCreatedBadges] = useState<CreatedBadge[]>([]);
 
+  useEffect(() => {
+    const loadBadges = async () => {
+      if (!address) {
+        setCreatedBadges([]);
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `/api/badges?walletAddress=${encodeURIComponent(address)}`,
+        );
+        if (!response.ok) {
+          throw new Error("Failed to load badges from database.");
+        }
+        const data = await response.json();
+        const badges = (data.badges ?? []) as BadgeRow[];
+        setCreatedBadges(badges.map(mapBadgeRow));
+      } catch (error) {
+        console.error("Error loading badges:", error);
+        setStatus(
+          error instanceof Error ? error.message : "Error loading badges.",
+        );
+      }
+    };
+
+    void loadBadges();
+  }, [address]);
+
   const generateBadge = async (missionId: string, missionTitle: string) => {
-    if (!connected) return;
+    if (!connected || !address) return;
     setLoading(missionId);
     setGeneratedBadge(null);
     setSuccess(false);
@@ -60,17 +113,35 @@ export default function AchievementsPage() {
       const data = await response.json();
       if (data.success) {
         const badgeId = data.badgeId ?? missionId;
-        const created: CreatedBadge = {
-          id: badgeId,
-          missionTitle,
-          imageUrl: data.imageUrl,
-          prompt: data.achievementPrompt,
-          createdAt: isoNow(),
-          minted: false,
-          metadataUri: `ipfs://ai-generated-badge/${badgeId}.json`,
-        };
-        setGeneratedBadge({ id: created.id, url: created.imageUrl, prompt: created.prompt });
-        setCreatedBadges((prev) => [created, ...prev]);
+        const metadataUri = `ipfs://ai-generated-badge/${badgeId}.json`;
+        const imageKey = data.imageKey ?? "badge_1.png";
+
+        const saveResponse = await fetch("/api/badges", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            walletAddress: address,
+            missionTitle,
+            imageUrl: imageKey,
+            prompt: data.achievementPrompt,
+            metadataUri,
+            minted: false,
+          }),
+        });
+
+        if (!saveResponse.ok) {
+          const saveError = await saveResponse.json().catch(() => ({}));
+          throw new Error(saveError.error ?? "Failed to save badge.");
+        }
+
+        const saved = await saveResponse.json();
+        const savedBadge = mapBadgeRow(saved.badge as BadgeRow);
+        setGeneratedBadge({
+          id: savedBadge.id,
+          url: savedBadge.imageUrl,
+          prompt: savedBadge.prompt,
+        });
+        setCreatedBadges((prev) => [savedBadge, ...prev]);
         setStatus("Badge generated successfully.");
       }
     } catch (error) {
@@ -106,9 +177,24 @@ export default function AchievementsPage() {
 
       setSuccess(true);
       setStatus("Badge minted on Stellar successfully.");
+
+      const patchResponse = await fetch(`/api/badges/${badgeId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ minted: true }),
+      });
+      if (!patchResponse.ok) {
+        const patchError = await patchResponse.json().catch(() => ({}));
+        throw new Error(patchError.error ?? "Failed to persist mint status.");
+      }
+
+      const patched = await patchResponse.json();
+      const patchedBadge = mapBadgeRow(patched.badge as BadgeRow);
       setCreatedBadges((prev) =>
         prev.map((badge) =>
-          badge.id === badgeId ? { ...badge, minted: true, minting: false } : badge
+          badge.id === badgeId
+            ? { ...patchedBadge, minting: false }
+            : badge
         )
       );
       confetti({
@@ -120,7 +206,19 @@ export default function AchievementsPage() {
 
     } catch (error) {
       console.error("Minting failed:", error);
-      setStatus(error instanceof Error ? error.message : "Minting failed");
+      const rawMessage =
+        error instanceof Error ? error.message : "Minting failed";
+      const normalized = rawMessage.toLowerCase();
+      if (
+        normalized.includes("claim_certificate") ||
+        normalized.includes("hosterror")
+      ) {
+        setStatus(
+          "Mint failed on-chain. Most common reasons: wallet is not eligible yet or this wallet already claimed a certificate. Ask admin to run set_eligible true, or try another eligible wallet.",
+        );
+      } else {
+        setStatus(rawMessage);
+      }
       setCreatedBadges((prev) =>
         prev.map((badge) =>
           badge.id === badgeId ? { ...badge, minting: false } : badge
@@ -271,6 +369,7 @@ export default function AchievementsPage() {
                   src={generatedBadge.url}
                   alt="Generated Badge"
                   fill
+                    sizes="(max-width: 768px) 100vw, 512px"
                   className={`object-cover transition-all duration-1000 ${success ? "scale-110 brightness-125" : ""}`}
                 />
                 {/* Refraction Overlay */}
