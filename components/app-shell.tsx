@@ -28,8 +28,8 @@ export function AppShell({ children }: AppShellProps) {
   } = useStellarWallet();
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 transition-colors duration-300">
-      <header className="sticky top-0 z-20 border-b border-black/5 dark:border-white/5 bg-white/70 dark:bg-zinc-950/70 backdrop-blur-xl">
+    <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-zinc-100 transition-colors duration-300">
+      <header className="sticky top-0 z-20 border-b border-white dark:border-white/5 bg-white/70 dark:bg-black/70 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
           <Link href="/" className="hoverable flex items-center gap-3">
             <div className="relative h-10 w-10 overflow-hidden rounded-xl border border-white/10 shadow-lg">
@@ -45,9 +45,9 @@ export function AppShell({ children }: AppShellProps) {
               <p className="text-xs text-zinc-500">Stellar Testnet</p>
             </div>
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
             <ThemeToggle />
-            <div className="h-6 w-[1px] bg-zinc-800" />
+            <div className="h-8 w-[1px] bg-white dark:bg-zinc-800" />
             {connected && shortAddress ? (
               <div className="flex items-center gap-3">
                 <span className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-600 dark:text-emerald-300">
@@ -56,7 +56,7 @@ export function AppShell({ children }: AppShellProps) {
                 <button
                   type="button"
                   onClick={disconnect}
-                  className="hoverable rounded-xl border border-zinc-200 dark:border-zinc-800 px-4 py-2 text-sm font-medium hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+                  className="hoverable rounded-xl border border-white dark:border-zinc-800 px-4 py-2 text-sm font-medium hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
                 >
                   Disconnect
                 </button>
@@ -77,8 +77,8 @@ export function AppShell({ children }: AppShellProps) {
 
       <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 px-6 py-8 md:grid-cols-[260px_1fr]">
         <aside className="h-fit space-y-6">
-          <div className="rounded-2xl glass-card p-6">
-            <p className="mb-4 text-xs font-bold uppercase tracking-widest text-zinc-500">
+          <div className="rounded-2xl border border-white glass-card p-6">
+            <p className="mb-4 text-xs font-extrabold uppercase tracking-[0.16em] text-zinc-700 dark:text-zinc-200">
               Navigation
             </p>
             <nav className="space-y-2">
@@ -86,7 +86,7 @@ export function AppShell({ children }: AppShellProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="hoverable block rounded-xl px-4 py-3 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
+                  className="hoverable block rounded-xl px-4 py-3 text-sm font-semibold tracking-[0.01em] text-zinc-800 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-900 hover:text-blue-700 dark:hover:text-blue-300 transition-all"
                 >
                   {item.label}
                 </Link>
@@ -94,7 +94,7 @@ export function AppShell({ children }: AppShellProps) {
             </nav>
           </div>
           
-          <div className="rounded-2xl glass-card p-6">
+          <div className="rounded-2xl border border-white glass-card p-6">
             <p className="mb-2 text-xs font-bold uppercase tracking-widest text-zinc-500">
               Network Status
             </p>
@@ -107,7 +107,7 @@ export function AppShell({ children }: AppShellProps) {
           </div>
         </aside>
         
-        <main className="rounded-3xl glass-card p-10 min-h-[600px]">
+        <main className="rounded-3xl border border-white glass-card p-10 min-h-[600px]">
           {children}
         </main>
       </div>

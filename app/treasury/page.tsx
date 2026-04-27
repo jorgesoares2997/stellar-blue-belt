@@ -69,7 +69,7 @@ export default function TreasuryPage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mt-2 text-3xl font-bold tracking-tight text-white md:text-4xl"
+          className="mt-2 text-3xl font-bold tracking-tight text-zinc-900 dark:text-white md:text-4xl"
         >
           Group treasury overview
         </motion.h1>
@@ -77,7 +77,7 @@ export default function TreasuryPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="mt-4 text-zinc-400 max-w-2xl"
+          className="mt-4 text-zinc-600 dark:text-zinc-400 max-w-2xl"
         >
           Manage shared funds for tools, courses and study material. 
           Every contribution is verifiable on the Stellar ledger.
@@ -91,9 +91,9 @@ export default function TreasuryPage() {
           transition={{ delay: 0.3 }}
           className="glass-card flex flex-col justify-center rounded-2xl p-8"
         >
-          <p className="text-sm font-medium text-zinc-400">Current Balance</p>
+          <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Current Balance</p>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-5xl font-bold text-white">{raised.toFixed(0)}</span>
+            <span className="text-5xl font-bold text-zinc-900 dark:text-white">{raised.toFixed(0)}</span>
             <span className="text-xl font-semibold text-blue-400">XLM</span>
           </div>
           <p className="mt-4 text-xs text-zinc-500 uppercase tracking-widest">
@@ -108,12 +108,12 @@ export default function TreasuryPage() {
           className="glass-card flex flex-col justify-center rounded-2xl p-8"
         >
           <div className="mb-4 flex items-center justify-between">
-            <span className="text-sm font-medium text-zinc-400">Target Progress</span>
-            <span className="text-sm font-bold text-white">
+            <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Target Progress</span>
+            <span className="text-sm font-bold text-zinc-900 dark:text-white">
               {progress}%
             </span>
           </div>
-          <div className="relative h-4 w-full overflow-hidden rounded-full bg-white/5">
+          <div className="relative h-4 w-full overflow-hidden rounded-full bg-black/5 dark:bg-white/5">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
@@ -133,10 +133,10 @@ export default function TreasuryPage() {
         transition={{ delay: 0.5 }}
         className="glass-card rounded-2xl p-8"
       >
-        <h3 className="mb-6 text-lg font-semibold text-white">Contribute to the DAO</h3>
+        <h3 className="mb-6 text-lg font-semibold text-zinc-900 dark:text-white">Contribute to the DAO</h3>
         <div className="flex flex-col gap-4 md:flex-row md:items-end">
           <div className="flex-1">
-            <label className="mb-2 block text-sm font-medium text-zinc-400">
+            <label className="mb-2 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
               Amount (XLM)
             </label>
             <input
@@ -145,7 +145,7 @@ export default function TreasuryPage() {
               step="1"
               value={donation}
               onChange={(e) => setDonation(e.target.value)}
-              className="hoverable w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none focus:border-blue-500/50 focus:bg-white/[0.08] transition-all"
+              className="hoverable w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/5 px-4 py-3 text-zinc-900 dark:text-white outline-none focus:border-blue-500/50 focus:bg-black/[0.05] dark:focus:bg-white/[0.08] transition-all"
             />
           </div>
           <button
@@ -170,9 +170,9 @@ export default function TreasuryPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.7 }}
-        className="rounded-xl border border-white/5 bg-white/[0.02] px-6 py-4 backdrop-blur-sm"
+        className="rounded-xl border border-black/5 dark:border-white/5 bg-black/[0.01] dark:bg-white/[0.02] px-6 py-4 backdrop-blur-sm"
       >
-        <div className="flex items-center gap-3 text-sm text-zinc-300">
+        <div className="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-300">
           <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
           {status}
         </div>

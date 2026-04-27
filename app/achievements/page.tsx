@@ -99,7 +99,7 @@ export default function AchievementsPage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mt-2 text-3xl font-bold tracking-tight text-white md:text-4xl"
+          className="mt-2 text-3xl font-bold tracking-tight text-zinc-900 dark:text-white md:text-4xl"
         >
           Generate Unique AI Badges
         </motion.h1>
@@ -107,7 +107,7 @@ export default function AchievementsPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="mt-4 text-zinc-400 max-w-2xl"
+          className="mt-4 text-zinc-600 dark:text-zinc-400 max-w-2xl"
         >
           Our Google Gemini AI analyzes your milestones to create one-of-a-kind 
           digital art for your achievements.
@@ -124,8 +124,8 @@ export default function AchievementsPage() {
             className="hoverable glass-card flex flex-col items-start justify-between gap-6 rounded-2xl p-8 md:flex-row md:items-center"
           >
             <div className="flex-1">
-              <h3 className="text-xl font-bold text-white">{mission.title}</h3>
-              <p className="mt-2 text-zinc-400 text-sm">{mission.description}</p>
+              <h3 className="text-xl font-bold text-zinc-900 dark:text-white">{mission.title}</h3>
+              <p className="mt-2 text-zinc-600 dark:text-zinc-400 text-sm">{mission.description}</p>
             </div>
             
             <button
@@ -143,7 +143,7 @@ export default function AchievementsPage() {
                   "Generate Unique AI Badge"
                 )}
               </span>
-              <div className="absolute inset-0 z-0 bg-gradient-to-r from-blue-600 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 z-0 bg-gradient-to-r from-emerald-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" />
             </button>
           </motion.div>
         ))}
@@ -155,7 +155,7 @@ export default function AchievementsPage() {
             initial={{ opacity: 0, scale: 0.8, y: 50 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 50 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-6 backdrop-blur-md"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6 backdrop-blur-md"
             onClick={() => setGeneratedBadge(null)}
           >
             <motion.div 
@@ -164,7 +164,7 @@ export default function AchievementsPage() {
               whileHover={{ rotateY: 5, rotateX: 5 }}
               style={{ perspective: 1000 }}
             >
-              <div className="relative aspect-square w-full overflow-hidden rounded-[22px] bg-zinc-900">
+              <div className="relative aspect-square w-full overflow-hidden rounded-[22px] bg-zinc-100 dark:bg-zinc-900">
                 <Image
                   src={generatedBadge.url}
                   alt="Generated Badge"
@@ -177,26 +177,26 @@ export default function AchievementsPage() {
               </div>
               
               <div className="p-8">
-                <h2 className="text-2xl font-bold text-white">
+                <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
                   {success ? "Achievement Minted! ✨" : "Your AI-Generated Badge"}
                 </h2>
                 <p className="mt-4 text-xs font-mono text-zinc-500 uppercase tracking-widest">AI Prompt Analysis</p>
-                <p className="mt-2 text-sm italic text-zinc-400 line-clamp-3">
-                  "{generatedBadge.prompt}"
+                <p className="mt-2 text-sm italic text-zinc-600 dark:text-zinc-400 line-clamp-3">
+                  &quot;{generatedBadge.prompt}&quot;
                 </p>
                 
                 <div className="mt-8 flex gap-4">
                   {!success && (
                     <button 
                       disabled={minting}
-                      className="hoverable flex-1 rounded-xl bg-white px-6 py-3 text-sm font-bold text-black transition-all hover:bg-zinc-200 disabled:opacity-50"
+                      className="hoverable flex-1 rounded-xl bg-zinc-900 dark:bg-white px-6 py-3 text-sm font-bold text-white dark:text-black transition-all hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-50"
                       onClick={mintAsNFT}
                     >
                       {minting ? "Minting on Stellar..." : "Mint as NFT"}
                     </button>
                   )}
                   <button 
-                    className="hoverable rounded-xl bg-zinc-800 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-zinc-700"
+                    className="hoverable rounded-xl bg-zinc-200 dark:bg-zinc-800 px-6 py-3 text-sm font-bold text-zinc-900 dark:text-white transition-all hover:bg-zinc-300 dark:hover:bg-zinc-700"
                     onClick={() => setGeneratedBadge(null)}
                   >
                     {success ? "Close" : "Close"}

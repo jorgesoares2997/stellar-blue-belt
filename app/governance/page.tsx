@@ -55,7 +55,7 @@ export default function GovernancePage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mt-2 text-3xl font-bold tracking-tight text-white md:text-4xl"
+          className="mt-2 text-3xl font-bold tracking-tight text-zinc-900 dark:text-white md:text-4xl"
         >
           Which topic should we study next?
         </motion.h1>
@@ -63,7 +63,7 @@ export default function GovernancePage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="mt-4 text-zinc-400 max-w-2xl"
+          className="mt-4 text-zinc-600 dark:text-zinc-400 max-w-2xl"
         >
           Active poll ID: <span className="text-blue-300 font-mono">{POLL_ID}</span>. 
           Your vote is recorded on-chain via the Soroban governance contract.
@@ -87,7 +87,7 @@ export default function GovernancePage() {
                 {option.icon}
               </div>
               <div>
-                <span className="block font-semibold text-white group-hover:text-blue-300 transition-colors">
+                <span className="block font-semibold text-zinc-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors">
                   {option.label}
                 </span>
                 <span className="mt-1 block text-xs text-zinc-500">
@@ -110,9 +110,9 @@ export default function GovernancePage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
-        className="rounded-xl border border-white/5 bg-white/[0.02] px-6 py-4 backdrop-blur-sm"
+        className="rounded-xl border border-black/5 dark:border-white/5 bg-black/[0.01] dark:bg-white/[0.02] px-6 py-4 backdrop-blur-sm"
       >
-        <div className="flex items-center gap-3 text-sm text-zinc-300">
+        <div className="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-300">
           <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
           {status}
         </div>

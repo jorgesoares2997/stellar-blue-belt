@@ -29,7 +29,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1 }}
-          className="max-w-4xl text-5xl font-bold tracking-tight md:text-7xl leading-tight"
+          className="max-w-4xl text-5xl font-bold tracking-tight text-zinc-900 dark:text-white md:text-7xl leading-tight"
         >
           Decentralized coordination for <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">study communities</span> on Stellar
         </motion.h1>
@@ -37,7 +37,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="mt-8 max-w-2xl text-lg text-zinc-400 leading-relaxed"
+          className="mt-8 max-w-2xl text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed"
         >
           StudyGroup DAO is an elite platform for governance, shared treasury, 
           and AI-powered achievements on the Stellar Testnet.
@@ -49,10 +49,10 @@ export default function Home() {
           transition={{ duration: 0.5, delay: 0.4 }}
           className="mt-12 flex gap-4"
         >
-          <button className="hoverable glass px-8 py-4 rounded-full text-sm font-semibold hover:bg-white/10 transition-all active:scale-95">
+          <button className="hoverable glass px-8 py-4 rounded-full text-sm font-semibold hover:bg-black/5 dark:hover:bg-white/10 transition-all active:scale-95">
             Explore Proposals
           </button>
-          <button className="hoverable bg-blue-600 px-8 py-4 rounded-full text-sm font-semibold hover:bg-blue-500 transition-all shadow-lg shadow-blue-500/20 active:scale-95">
+          <button className="hoverable bg-blue-600 px-8 py-4 rounded-full text-sm font-semibold text-white hover:bg-blue-500 transition-all shadow-lg shadow-blue-500/20 active:scale-95">
             Connect Wallet
           </button>
         </motion.div>
@@ -88,8 +88,8 @@ export default function Home() {
             <div className="mb-6 h-12 w-12 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover:bg-blue-500/20 transition-colors">
               <div className="h-2 w-2 rounded-full bg-blue-400" />
             </div>
-            <h2 className="mb-4 text-xl font-semibold text-white">{feature.title}</h2>
-            <p className="text-zinc-400 leading-relaxed text-sm">
+            <h2 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-white">{feature.title}</h2>
+            <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed text-sm">
               {feature.description}
             </p>
           </motion.article>
