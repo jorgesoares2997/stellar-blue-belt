@@ -41,7 +41,7 @@ export const CustomCursor = () => {
 
   return (
     <motion.div
-      className="pointer-events-none fixed left-0 top-0 z-[9999] mix-blend-difference"
+      className="pointer-events-none fixed left-0 top-0 z-[9999] mix-blend-difference flex items-center justify-center"
       style={{
         x: springX,
         y: springY,
@@ -51,12 +51,36 @@ export const CustomCursor = () => {
     >
       <motion.div
         animate={{
-          scale: isHovering ? 2.5 : 1,
+          width: isHovering ? 96 : 24,
+          height: isHovering ? 96 : 24,
           opacity: isVisible ? 1 : 0,
         }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
-        className="h-6 w-6 rounded-full border border-white bg-white/20 backdrop-blur-[2px]"
-      />
+        className="relative flex items-center justify-center rounded-full border border-white bg-white/20 backdrop-blur-[2px]"
+      >
+        <motion.div
+          animate={{ opacity: isHovering ? 1 : 0, rotate: 360 }}
+          transition={{
+            opacity: { duration: 0.2 },
+            rotate: { repeat: Infinity, duration: 8, ease: "linear" },
+          }}
+          className="absolute inset-0"
+        >
+          <svg viewBox="0 0 100 100" className="w-full h-full">
+            <path
+              id="circleTextPath"
+              d="M 50, 50 m -38, 0 a 38,38 0 1,1 76,0 a 38,38 0 1,1 -76,0"
+              fill="transparent"
+            />
+            <text className="fill-white text-[10.5px] font-bold uppercase tracking-[0.25em]">
+              <textPath href="#circleTextPath" startOffset="0%">
+                Stellar Blue Belt • Stellar Blue Belt • 
+              </textPath>
+            </text>
+          </svg>
+        </motion.div>
+      </motion.div>
     </motion.div>
   );
 };
+
