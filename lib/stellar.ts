@@ -105,5 +105,6 @@ export const scVal = {
   string: (value: string) => nativeToScVal(value),
   i128: (value: bigint) => nativeToScVal(value, { type: "i128" }),
   u32: (value: number) => xdr.ScVal.scvU32(value),
+  bool: (value: boolean) => nativeToScVal(value),
   address: (value: string) => new Address(value).toScVal(),
 };

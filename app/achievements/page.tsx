@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useStellarWallet } from "@/hooks/useStellarWallet";
@@ -40,6 +40,13 @@ type BadgeRow = {
   metadata_uri: string;
 };
 
+type ToastMessage = {
+  id: string;
+  type: "success" | "error";
+  title: string;
+  description: string;
+};
+
 function mapBadgeRow(row: BadgeRow): CreatedBadge {
   const imageKey = row.image_url.startsWith("/")
     ? row.image_url.split("/").pop() || "badge_1.png"
@@ -58,11 +65,29 @@ function mapBadgeRow(row: BadgeRow): CreatedBadge {
 
 export default function AchievementsPage() {
   const { connected, address } = useStellarWallet();
+  const configuredAdmin = process.env.NEXT_PUBLIC_NFT_ADMIN_ADDRESS ?? "";
   const [loading, setLoading] = useState<string | null>(null);
   const [status, setStatus] = useState<string>("");
   const [success, setSuccess] = useState(false);
   const [generatedBadge, setGeneratedBadge] = useState<{ id: string; url: string; prompt: string } | null>(null);
   const [createdBadges, setCreatedBadges] = useState<CreatedBadge[]>([]);
+  const [approveTarget, setApproveTarget] = useState("");
+  const [approving, setApproving] = useState(false);
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const toastCounterRef = useRef(0);
+
+  const showToast = (
+    type: ToastMessage["type"],
+    title: string,
+    description: string,
+  ) => {
+    toastCounterRef.current += 1;
+    const id = `toast-${toastCounterRef.current}`;
+    setToasts((prev) => [...prev, { id, type, title, description }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    }, 4200);
+  };
 
   useEffect(() => {
     const loadBadges = async () => {
@@ -143,10 +168,18 @@ export default function AchievementsPage() {
         });
         setCreatedBadges((prev) => [savedBadge, ...prev]);
         setStatus("Badge generated successfully.");
+        showToast(
+          "success",
+          "Badge created",
+          "AI badge generated and saved to the database.",
+        );
       }
     } catch (error) {
       console.error("Error generating badge:", error);
-      setStatus(error instanceof Error ? error.message : "Error generating badge.");
+      const message =
+        error instanceof Error ? error.message : "Error generating badge.";
+      setStatus(message);
+      showToast("error", "Badge generation failed", message);
     } finally {
       setLoading(null);
     }
@@ -177,6 +210,11 @@ export default function AchievementsPage() {
 
       setSuccess(true);
       setStatus("Badge minted on Stellar successfully.");
+      showToast(
+        "success",
+        "NFT minted",
+        "Certificate minted on Stellar and persisted in your badge history.",
+      );
 
       const patchResponse = await fetch(`/api/badges/${badgeId}`, {
         method: "PATCH",
@@ -213,11 +251,17 @@ export default function AchievementsPage() {
         normalized.includes("claim_certificate") ||
         normalized.includes("hosterror")
       ) {
-        setStatus(
-          "Mint failed on-chain. Most common reasons: wallet is not eligible yet or this wallet already claimed a certificate. Ask admin to run set_eligible true, or try another eligible wallet.",
+        const message =
+          "Mint failed on-chain. Wallet is likely not eligible yet, or it already has a certificate.";
+        setStatus(message);
+        showToast(
+          "error",
+          "Mint rejected",
+          `${message} Use "Approve Wallet" with the admin account, then try again.`,
         );
       } else {
         setStatus(rawMessage);
+        showToast("error", "Mint failed", rawMessage);
       }
       setCreatedBadges((prev) =>
         prev.map((badge) =>
@@ -228,6 +272,70 @@ export default function AchievementsPage() {
       setTimeout(() => {
         setSuccess(false);
       }, 1500);
+    }
+  };
+
+  const approveWallet = async () => {
+    if (!connected || !address) return;
+
+    const member = approveTarget.trim();
+    if (!/^G[A-Z2-7]{55}$/.test(member)) {
+      const message = "Enter a valid Stellar public key (starts with G...).";
+      setStatus(message);
+      showToast("error", "Invalid wallet", message);
+      return;
+    }
+
+    setApproving(true);
+    setStatus("Submitting eligibility approval on-chain...");
+    try {
+      // We re-resolve the address from the wallet-kit to avoid stale UI state.
+      const adminFromKit = await getConnectedAddress();
+      console.log("[Approve Wallet] connected UI address:", address);
+      console.log("[Approve Wallet] connected kit address:", adminFromKit);
+      console.log("[Approve Wallet] configured admin:", configuredAdmin);
+      console.log("[Approve Wallet] approving member:", member);
+
+      if (
+        configuredAdmin &&
+        adminFromKit !== configuredAdmin &&
+        member.length > 0
+      ) {
+        const message =
+          "Connected wallet does not match NEXT_PUBLIC_NFT_ADMIN_ADDRESS. Approvals will fail unless you connect the NFT contract admin.";
+        setStatus(message);
+        showToast("error", "Not admin", message);
+        return;
+      }
+
+      await invokeContract({
+        contractId: NFT_CONTRACT_ID,
+        method: "set_eligible",
+        args: [
+          scVal.address(adminFromKit),
+          scVal.address(member),
+          scVal.bool(true),
+        ],
+      });
+      const message = `Wallet ${member.slice(0, 6)}...${member.slice(-4)} is now eligible.`;
+      setStatus(message);
+      showToast("success", "Wallet approved", message);
+    } catch (error) {
+      console.error("[Approve Wallet] failed:", error);
+      const rawMessage =
+        error instanceof Error ? error.message : "Approval failed.";
+      const normalized = rawMessage.toLowerCase();
+      if (normalized.includes("hosterror") || normalized.includes("set_eligible")) {
+        const message =
+          "Approval failed on-chain. Make sure the connected wallet is the NFT contract admin account.";
+        setStatus(message);
+        showToast("error", "Approval failed", message);
+      } else {
+        setStatus(rawMessage);
+        showToast("error", "Approval failed", rawMessage);
+      }
+    } finally {
+      setApproving(false);
     }
   };
 
@@ -294,6 +402,55 @@ export default function AchievementsPage() {
           </motion.div>
         ))}
       </div>
+
+      <section className="rounded-2xl border border-black/5 bg-black/[0.01] p-6 dark:border-white/10 dark:bg-white/[0.02]">
+        <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
+          Admin: Approve Wallet To Mint
+        </h2>
+        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+          Connect with the NFT admin wallet, then approve any member wallet.
+        </p>
+        {configuredAdmin && (
+          <p className="mt-2 text-xs font-mono text-zinc-500 dark:text-zinc-400">
+            Configured admin: {configuredAdmin}
+          </p>
+        )}
+        <div className="mt-4 flex flex-col gap-3 md:flex-row">
+          <input
+            type="text"
+            value={approveTarget}
+            onChange={(event) => setApproveTarget(event.target.value)}
+            placeholder="G... member wallet address"
+            className="w-full rounded-xl border border-black/10 bg-white px-4 py-2 text-sm text-zinc-900 outline-none ring-blue-500/40 placeholder:text-zinc-400 focus:ring-2 dark:border-white/20 dark:bg-zinc-900 dark:text-white"
+          />
+          <button
+            type="button"
+            onClick={approveWallet}
+            disabled={!connected || approving}
+            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:opacity-50"
+          >
+            {approving ? "Approving..." : "Approve Wallet"}
+          </button>
+        </div>
+
+        {toasts.length > 0 && (
+          <div className="mt-3 space-y-2">
+            {toasts.map((toast) => (
+              <div
+                key={toast.id}
+                className={`rounded-xl border px-4 py-3 text-sm shadow-lg backdrop-blur ${
+                  toast.type === "success"
+                    ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-100"
+                    : "border-rose-400/40 bg-rose-500/15 text-rose-100"
+                }`}
+              >
+                <p className="font-semibold">{toast.title}</p>
+                <p className="mt-1 text-xs opacity-90">{toast.description}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
       <section className="space-y-4">
         <h2 className="text-xl font-bold text-zinc-900 dark:text-white">
@@ -415,6 +572,7 @@ export default function AchievementsPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
     </div>
   );
 }

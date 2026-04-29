@@ -8,7 +8,6 @@ const DEFAULT_MODEL_POOL = [
   "gemini-1.5-flash-8b",
   "gemini-1.5-flash-latest",
   "gemini-1.5-pro-latest",
-  "gemini-1.5-flash",
 ];
 
 type BadgeTheme = {

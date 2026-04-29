@@ -298,7 +298,7 @@ StudyGroup DAO is a decentralized coordination platform built exclusively for st
 
 **Crucial artifacts for the Blue Belt evaluation:**
 - **Live Demo:** https://stellar-blue-belt.vercel.app/
-- **Demo Video:** [INSERT_DEMO_VIDEO_LINK]
+- **Demo Video:** https://youtu.be/EWeEXrukWaI
 - **Architecture Document:** [ARCHITECTURE.md](ARCHITECTURE.md)
 
 ---
@@ -308,11 +308,11 @@ StudyGroup DAO is a decentralized coordination platform built exclusively for st
 We actively tested the dApp on the Stellar Testnet with early adopters to ensure robust contract interaction and wallet connectivity.
 
 **Testnet Public Keys of Validators (5+ Users):**
-1. `[INSERT_WALLET_1]`
-2. `[INSERT_WALLET_2]`
-3. `[INSERT_WALLET_3]`
-4. `[INSERT_WALLET_4]`
-5. `[INSERT_WALLET_5]`
+1. `GCCGU235LSR4CUL5EFRLVLPGGBKGQR7JQNZ52QSG4RC2YEICYWSCKRDZ`
+2. `GDTEKNITZO2OVH6MKR5O5JFFOXLSCHAESGZH5L5C74OCUGB6QJ5JTVBY`
+3. `GD7P4ITHGADMOE3RED4DFGZ3K5FTHTVINUKOVB2CH5OIDV6RDA2SC36Q`
+4. `GCCBZGKMZS7RTSW5WUTMOBQTJSDHUFY4OF5P7YAU35QYKWFOYVPUS426`
+5. `GDJGT72QVZYLWHKY7I52MNDGUID6CRW4DUPY7EPAZ2ENZBZEH3YT2XQO`
 
 ---
 
@@ -320,7 +320,7 @@ We actively tested the dApp on the Stellar Testnet with early adopters to ensure
 
 Building a user-centric product requires active listening. We collected detailed feedback through structured forms and implemented key UX/UI iterations based on the responses.
 
-- **User Feedback Documentation (Excel/Sheet):** [INSERT_FEEDBACK_SHEET_LINK]
+- **User Feedback Documentation (Excel/Sheet):** https://docs.google.com/spreadsheets/d/1mp0Qb7snueQLeNRNIDSAe4VpeORpA2pA3YN_sSWEcVg/edit?usp=sharing
 
 ### Completed Iteration
 Based on feedback (specifically from user 'Ingrid'), we recognized the need to better explain the platform's features to new users. 
@@ -345,12 +345,3 @@ Our journey doesn't stop here. For the final Black Belt tier, we are planning to
 - [ ] Add richer certificate metadata and gallery.
 - [ ] Improve onboarding UX and transaction status details.
 
-## Blue Belt Checklist
-
-- [x] Documented architecture
-- [x] Smart contracts + frontend integration
-- [x] Freighter wallet integration
-- [x] User feedback collection hook
-- [ ] Final deploy URL filled
-- [ ] Demo video link filled
-- [ ] Five real user wallet addresses filled
