@@ -301,6 +301,15 @@ StudyGroup DAO is a decentralized coordination platform built exclusively for st
 - **Demo Video:** https://youtu.be/EWeEXrukWaI
 - **Architecture Document:** [ARCHITECTURE.md](ARCHITECTURE.md)
 
+### Deployed Contracts (Stellar Testnet)
+
+- **Governance Contract ID:** `CBPZBX7FGTDAWQSNMJXOWXBGYJDKYMQMSHNLZM2QRYODGYPED6NGMNPH`  
+  Explorer: [https://stellar.expert/explorer/testnet/contract/CBPZBX7FGTDAWQSNMJXOWXBGYJDKYMQMSHNLZM2QRYODGYPED6NGMNPH](https://stellar.expert/explorer/testnet/contract/CBPZBX7FGTDAWQSNMJXOWXBGYJDKYMQMSHNLZM2QRYODGYPED6NGMNPH)
+- **Treasury Contract ID:** `CBVEKMBHX4QMIVADYSUDAPJ263CRBZUCGOY6KVLWSD2I6QO7P6DXNMR4`  
+  Explorer: [https://stellar.expert/explorer/testnet/contract/CBVEKMBHX4QMIVADYSUDAPJ263CRBZUCGOY6KVLWSD2I6QO7P6DXNMR4](https://stellar.expert/explorer/testnet/contract/CBVEKMBHX4QMIVADYSUDAPJ263CRBZUCGOY6KVLWSD2I6QO7P6DXNMR4)
+- **Achievements (NFT) Contract ID:** `CBWDTLHGKLFNVPSNURL266TICYTXXIYUVVP7Q7VCK4FPZQGHYUYLTGUJ`  
+  Explorer: [https://stellar.expert/explorer/testnet/contract/CBWDTLHGKLFNVPSNURL266TICYTXXIYUVVP7Q7VCK4FPZQGHYUYLTGUJ](https://stellar.expert/explorer/testnet/contract/CBWDTLHGKLFNVPSNURL266TICYTXXIYUVVP7Q7VCK4FPZQGHYUYLTGUJ)
+
 ---
 
 ## 👥 User Validation
